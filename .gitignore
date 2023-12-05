@@ -1,0 +1,42 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+
+# dependencies
+AI-Tech-Ed-client/node_modules
+AI-Tech-Ed-client/.pnp
+AI-Tech-Ed-client.pnp.js
+
+# testing
+AI-Tech-Ed-client/coverage
+
+# production
+AI-Tech-Ed-client/build
+
+# misc
+AI-Tech-Ed-client.DS_Store
+AI-Tech-Ed-client.env
+AI-Tech-Ed-client.env.local
+AI-Tech-Ed-client.env.development.local
+AI-Tech-Ed-client.env.test.local
+AI-Tech-Ed-client.env.production.local
+
+AI-Tech-Ed-clientnpm-debug.log*
+AI-Tech-Ed-clientyarn-debug.log*
+AI-Tech-Ed-clientyarn-error.log*
