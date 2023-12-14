@@ -33,7 +33,7 @@ Route::group(['middleware' => ['jwt.role:users','jwt.auth']],function ()
     Route::post('/add-user-purchase',[ProductController::class,'addTSPurchases']);
     Route::get('/get-user-purchases-id',[ProductController::class,'getTSPurchasesId']);
     Route::get('/get-user-purchases/{ts_id}',[ProductController::class,'getTSPurchases']);
-    Route::get('/get-user-test-details/{ps_id}',[ProductController::class,'getTSDetails']);
+    Route::get('/get-user-test-details/{uts_id}',[ProductController::class,'getTSDetails']);
     Route::get('/check-user-purchase-expire/{user_id}',[ProductController::class,'checkUserPurchaseExpire']);
     Route::get('/get-latest-product',[ProductController::class,'getLatestProduct']);
 

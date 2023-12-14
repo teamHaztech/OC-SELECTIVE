@@ -21,6 +21,48 @@ use stdClass;
 
 class UserController extends Controller
 {
+    private function get_Topic_detail($tsc_id, $ts_id)
+    {
+        $time = 0;
+        $question_number = 0;
+        switch ($tsc_id) {
+            case 1:
+                if ($ts_id == 1) {
+                    $time = 40;
+                    $question_number = 35;
+                } else {
+                    $time = 40;
+                    $question_number = 30;
+                }
+                break;
+
+            case 2:
+                if ($ts_id == 1) {
+                    $time = 30;
+                    $question_number = 25;
+                } else {
+                    $time = 40;
+                    $question_number = 35;
+                }
+                break;
+            case 3:
+                if ($ts_id == 1) {
+                    $time = 30;
+                    $question_number = 30;
+                } else {
+                    $time = 40;
+                    $question_number = 40;
+                }
+                break;
+        }
+
+        return [
+            "time" => $time,
+            "question_number" => $question_number
+        ];
+
+
+    }
     private function get_user_rank($set_id, $user_id)
     {
         $all_percentage = UserTestSeries::query()
@@ -73,10 +115,13 @@ class UserController extends Controller
             ], 200);
         }
 
-        $timer = TSPCSet::query()
-            ->where('id', $request->set_id, )
+        $test = TSPCSet::query()
+            ->where('id', $request->set_id)
             ->with('getTsPC.testSeriesCategories')
             ->first();
+        //    $timer->getTsPC->testSeriesCategories->id;
+        $timer = $this->get_Topic_detail($test->getTsPC->testSeriesCategories->id, $test->getTsPC->getTestSeriesProduct->ts_id)["time"];
+
         $current = Carbon::now();
 
         $uts = UserTestSeries::query()
@@ -85,7 +130,7 @@ class UserController extends Controller
                     'tsps_id' => $request->ps_id,
                     'set_id' => $request->set_id,
                     'complete_status' => 0,
-                    'current_timer' => $timer->getTsPC->testSeriesCategories->duration,
+                    'current_timer' => $timer,
                     'start_date' => $current->format('d-m-Y'),
                 ]
             );
@@ -147,6 +192,7 @@ class UserController extends Controller
             // with('userPurchases.tsProduct')
             with('getTSSet.getTsPC.testSeriesCategories')
             ->find($id);
+
         $cate_id = $userTestSeries->getTSSet->getTsPC->testSeriesCategories->id;
         // $product = $userTestSeries->userPurchases->tsProduct;
 
@@ -179,7 +225,7 @@ class UserController extends Controller
             // return ;
             return response()->json([
                 'test_data' => $c['test_data'],
-                // ""
+                'category_id' => $userTestSeries->getTSSet->getTsPC->testSeriesCategories->id,
                 'current_qid' => $userTestSeries->q_id,
                 'uts_id' => $userTestSeries->id,
                 'timer' => $timer,
@@ -224,6 +270,7 @@ class UserController extends Controller
         $c = $this->get_question_index($userTestStatuses);
         return response()->json([
             'test_data' => $c['test_data'],
+            'category_id' => $userTestSeries->getTSSet->getTsPC->testSeriesCategories->id,
             'current_qid' => $userTestSeries->q_id,
             'uts_id' => $userTestSeries->id,
             "index" => $c['index'],
@@ -285,11 +332,16 @@ class UserController extends Controller
         //     unset($item->questions->extraFields);
         //     return $item;
         // });
+        $userTestSeries = UserTestSeries::
+            // with('userPurchases.tsProduct')
+            with('getTSSet.getTsPC.testSeriesCategories')
+            ->find($uts_id->uts_id);
         return response()->json([
             'message' => 'Successfully Updated',
             'test_data' => $c['test_data'],
             'current_qid' => $uts_id->id,
             "index" => $c['index'],
+            'category_id' => $userTestSeries->getTSSet->getTsPC->testSeriesCategories->id,
             // $question_timer
         ], 200);
     }
@@ -297,8 +349,6 @@ class UserController extends Controller
 
     public function updateTimer($id, Request $request)
     {
-        // $uts_id = UserTestStatus::where('id', $id)
-        //     ->first();
 
         UserTestSeries::query()
             ->where('id', $id)
@@ -318,8 +368,9 @@ class UserController extends Controller
             ->where('id', $id)
             ->with('getTSSet.getTsPC.testSeriesCategories')
             ->first();
-
-        $duration = $uts->getTSSet->getTsPC->testSeriesCategories->duration;
+            // return $uts;
+        $topic = $this->get_Topic_detail($uts->getTSSet->getTsPC->testSeriesCategories->id, $uts->getTSSet->getTsPC->getTestSeriesProduct->ts_id);
+        $duration = $topic["time"];
 
         $total_answered = UserTestStatus::query()
             ->where('uts_id', $id)
@@ -343,6 +394,7 @@ class UserController extends Controller
 
             }
         }
+
         // return ([$total]);
         $time_taken = round(((int) $duration - (int) $request->current_timer));
 
@@ -354,11 +406,11 @@ class UserController extends Controller
                 'time_taken' => $time_taken,
                 'current_timer' => null,
                 'total_marks' => $total,
-                'percentage' => ($total / 35) * 100,
+                'percentage' => ($total / $topic["question_number"]) * 100,
                 'total_answered' => count($total_answered)
             ]);
 
-        $t = UserTestSeries::query()->where('id', $id)->first();
+        // $t = UserTestSeries::query()->where('id', $id)->first();
         // return $total;
         return response()->json([
             'message' => 'Successfully Submitted',
@@ -381,7 +433,8 @@ class UserController extends Controller
             ->with('getTSSet.getTsPC.testSeriesCategories')
             ->first();
 
-        $duration = $uts->getTSSet->getTsPC->testSeriesCategories->duration;
+        $timer = $this->get_Topic_detail($uts->getTSSet->getTsPC->testSeriesCategories->id, $uts->getTSSet->getTsPC->getTestSeriesProduct->ts_id)["time"];
+        // $duration = $uts->getTSSet->getTsPC->testSeriesCategories->duration;
 
         $total_answered = UserTestStatus::query()
             ->where('uts_id', $id)
@@ -413,7 +466,7 @@ class UserController extends Controller
             'total_answered' => count($total_answered),
             'total_questions' => $q_count,
             'total_marks' => $q_count,
-            'total_time' => $duration,
+            'total_time' => $timer,
             'time_taken' => (int) $uts->time_taken,
             'right_answer' => $uts->total_marks,
             'wrong_answer' => (int) ($q_count - $uts->total_marks),
@@ -428,6 +481,7 @@ class UserController extends Controller
             ->where('user_id', $user_id)
             ->with('tsProduct.getTsProductCategory.tsPCSet')
             ->get();
+
         $total_test = 0;
         $complete_test = 0;
         $incomplete_test = 0;
@@ -515,11 +569,12 @@ class UserController extends Controller
         // return $purchases->category;
         if (is_array($purchases->category)) {
             foreach ($purchases->category as $value2) {
+                $timer = $this->get_Topic_detail($value2['id'], $purchases->tsProduct->ts_id)["time"];
                 foreach ($value2['set'] as $value3) {
                     $value3->valid_from = $purchases->valid_from;
                     $value3->valid_till = $purchases->valid_till;
                     $value3->tsc_type = $value2['tsc_type'];
-                    $value3->duration = $value2['duration'];
+                    $value3->duration = $timer;
                     unset($value3->tspc_id, $value3->set_number, $value3->status);
                     $new_purchases[] = $value3;
                 }
@@ -552,7 +607,7 @@ class UserController extends Controller
         $user_RA = $user_RA->map(function ($item) {
             $item->set_name = $item->getTSSet->set_name;
             $item->package_name = $item->userPurchases->tsProduct->p_name;
-            unset($item->getTSSet,$item->userPurchases);
+            unset($item->getTSSet, $item->userPurchases);
             return $item;
         });
 
@@ -660,7 +715,7 @@ class UserController extends Controller
 
         return response()->json([
             'result' => $set_RA,
-            'index'=>$c['index']
+            'index' => $c['index']
         ], 200);
     }
 
@@ -703,17 +758,20 @@ class UserController extends Controller
         $set_RA = UserTestSeries::query()
             ->where('id', $uts_id)
             // ->select('id')
+            ->with('getTSSet.getTsPC.testSeriesCategories')
             ->first();
+
+        $topic = $this->get_Topic_detail($set_RA->getTSSet->getTsPC->testSeriesCategories->id, $set_RA->getTSSet->getTsPC->getTestSeriesProduct->ts_id);
 
         $marks = new stdClass();
         $marks->right_marks = $set_RA->total_marks;
         $marks->negative_marks = $set_RA->total_answered - $set_RA->total_marks;
-        $marks->left_marks = 35 - $set_RA->total_answered;
+        $marks->left_marks = $topic['question_number'] - $set_RA->total_answered;
 
         $question_marks = new stdClass();
         $question_marks->right_question = $set_RA->total_marks;
         $question_marks->negative_question = $set_RA->total_answered - $set_RA->total_marks;
-        $question_marks->left_question = 35 - $set_RA->total_answered;
+        $question_marks->left_question = $topic['question_number'] - $set_RA->total_answered;
         return response()->json([
             'marks_distribution' => $marks,
             'question_distribution' => $question_marks

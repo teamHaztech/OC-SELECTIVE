@@ -19,7 +19,48 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
-{
+{ private function get_Topic_detail($tsc_id, $ts_id)
+    {
+        $time = 0;
+        $question_number = 0;
+        switch ($tsc_id) {
+            case 1:
+                if ($ts_id == 1) {
+                    $time = 40;
+                    $question_number = 35;
+                } else {
+                    $time = 40;
+                    $question_number = 30;
+                }
+                break;
+
+            case 2:
+                if ($ts_id == 1) {
+                    $time = 30;
+                    $question_number = 25;
+                } else {
+                    $time = 40;
+                    $question_number = 35;
+                }
+                break;
+            case 3:
+                if ($ts_id == 1) {
+                    $time = 30;
+                    $question_number = 30;
+                } else {
+                    $time = 40;
+                    $question_number = 40;
+                }
+                break;
+        }
+
+        return [
+            "time" => $time,
+            "question_number" => $question_number
+        ];
+
+
+    }
     public function getTestSeriesTopics($id)
     {
 
@@ -154,20 +195,21 @@ class ProductController extends Controller
         foreach ($purchases as $key => $value) {
             $temp_data = $value->tsProduct->getTsProductCategory;
             $test_data = array_column($temp_data->toArray(), 'test_series_categories');
-            // return $test_data;
+
             $value->category = collect($test_data)->map(function ($item, $key) use ($temp_data) {
                 $item['set'] = $temp_data[$key]->tsPCSet;
                 return $item;
             })->all();
 
             foreach ($value->category as $value2) {
-                // return $value2;
+                // return $value2;/
+                $timer = $this->get_Topic_detail( $value2['id'],  $value->tsProduct->ts_id)["time"];
                 foreach ($value2['set'] as $value3) {
                     $value3->purchase_id = $value->id;
                     $value3->valid_from = $value->valid_from;
                     $value3->valid_till = $value->valid_till;
                     $value3->tsc_type = $value2['tsc_type'];
-                    $value3->duration = $value2['duration'];
+                    $value3->duration = $timer;
                     $new_purchases[] = $value3;
                     $value3->package_name = $value->tsProduct->p_name;
                 }
@@ -186,26 +228,28 @@ class ProductController extends Controller
             //
         ], 200);
     }
-    public function getTSDetails($ps_id)
+    public function getTSDetails($uts_id)
     {
 
         $temp = UserTestSeries::query()
-            ->where('id', $ps_id)
+            ->where('id', $uts_id)
             ->with('userPurchases.tsProduct')
             ->first();
+
         $uts_id = $temp->id;
         $purchase = $temp->userPurchases;
         $detail = UserTestSeries::query()
-            ->where('id', $ps_id)
+            ->where('id', $uts_id)
             ->with('getTSSet.getTsPC.testSeriesCategories')
             ->first();
+            $timer = $this->get_Topic_detail( $detail->getTSSet->getTsPC->testSeriesCategories->id,  $temp ->userPurchases->tsProduct->ts_id);
         $test_detail = $detail->getTSSet;
         return response()->json([
             'subject' => $test_detail->getTsPC->testSeriesCategories->tsc_type,
             'set_name' => $test_detail->set_name,
-            'total_question' => $purchase->tsproduct->total_question,
+            'total_question' => $timer["question_number"],
             'uts_id' => $uts_id,
-            'duration' => $test_detail->getTsPC->testSeriesCategories->duration,
+            'duration' => $timer["time"],
             'p_name' => $purchase->tsproduct->p_name
         ], 200);
     }

@@ -15,7 +15,7 @@ return new class extends Migration {
         Schema::create('test_series_topics', function (Blueprint $table) {
             $table->id();
             $table->string('t_name',40);
-            $table->string('topic',40);
+            $table->string('topic',40)->nullable();
             $table->unsignedBigInteger('tsc_id')->index();
             $table->foreign('tsc_id')->references('id')->on('test_series_categories')->onDelete('cascade');
             $table->tinyInteger('status')->default('1');

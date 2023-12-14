@@ -20,6 +20,10 @@ class Question extends Model
         'option_3',
         'option_4',
         'option_5',
+        'option_6',
+        'option_7',
+        'option_8',
+
         'correct_option',
         'explanation',
         'tst_id',
@@ -43,6 +47,10 @@ class Question extends Model
                 'b' => 2,
                 'c' => 3,
                 'd' => 4,
+                'e' => 1,
+                'f' => 2,
+                'g' => 3,
+                'h' => 4,
                 default => $value
             }
         );
@@ -61,6 +69,11 @@ class Question extends Model
             2 => 'B',
             3 => 'C',
             4 => 'D',
+            5 => 'E',
+            6 => 'F',
+            7 => 'G',
+            8 => 'H',
+            default => $value
         };
     }
 

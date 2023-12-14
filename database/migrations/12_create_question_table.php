@@ -14,11 +14,14 @@ return new class extends Migration
         Schema::create('question', function (Blueprint $table) {
             $table->id();
             $table->mediumText('question');
-            $table->string('option_1',255);
-            $table->string('option_2',255);
-            $table->string('option_3',255);
-            $table->string('option_4',255);
+            $table->string('option_1',255)->nullable();
+            $table->string('option_2',255)->nullable();
+            $table->string('option_3',255)->nullable();
+            $table->string('option_4',255)->nullable();
             $table->string('option_5',255)->nullable();
+            $table->string('option_6',255)->nullable();
+            $table->string('option_7',255)->nullable();
+            $table->string('option_8',255)->nullable();
             $table->string('correct_option',11);
             $table->mediumText('explanation')->nullable();
             $table->unsignedBigInteger('tst_id')->index();
