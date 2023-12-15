@@ -227,16 +227,16 @@ class UserAuthController extends Controller
         }
 
         $otp = rand(1111, 9999);
-        Resend::emails()->send([
-            'from' => 'Acme <onboarding@resend.dev>',
-            'to' => [$request->email],
-            'subject' => 'Confirmation',
-            'html' => "<h2>Your OTP <h1>" . $otp . "</h1></h2>",
-        ]);
+        // Resend::emails()->send([
+        //     'from' => 'Acme <onboarding@resend.dev>',
+        //     'to' => [$request->email],
+        //     'subject' => 'Confirmation',
+        //     'html' => "<h2>Your OTP <h1>" . $otp . "</h1></h2>",
+        // ]);
 
         return response()->json([
             'message' => 'success',
-            'email'=>$request->email,
+            // 'email'=>$request->email,
             'otp' => $otp
         ], 200);
     }
