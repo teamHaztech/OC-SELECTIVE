@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
-{ private function get_Topic_detail($tsc_id, $ts_id)
+{
+    private function get_Topic_detail($tsc_id, $ts_id)
     {
         $time = 0;
         $question_number = 0;
@@ -203,7 +204,7 @@ class ProductController extends Controller
 
             foreach ($value->category as $value2) {
                 // return $value2;/
-                $timer = $this->get_Topic_detail( $value2['id'],  $value->tsProduct->ts_id)["time"];
+                $timer = $this->get_Topic_detail($value2['id'], $value->tsProduct->ts_id)["time"];
                 foreach ($value2['set'] as $value3) {
                     $value3->purchase_id = $value->id;
                     $value3->valid_from = $value->valid_from;
@@ -242,7 +243,7 @@ class ProductController extends Controller
             ->where('id', $uts_id)
             ->with('getTSSet.getTsPC.testSeriesCategories')
             ->first();
-            $timer = $this->get_Topic_detail( $detail->getTSSet->getTsPC->testSeriesCategories->id,  $temp ->userPurchases->tsProduct->ts_id);
+        $timer = $this->get_Topic_detail($detail->getTSSet->getTsPC->testSeriesCategories->id, $temp->userPurchases->tsProduct->ts_id);
         $test_detail = $detail->getTSSet;
         return response()->json([
             'subject' => $test_detail->getTsPC->testSeriesCategories->tsc_type,
@@ -257,6 +258,7 @@ class ProductController extends Controller
     {
         $tsp = TestSeriesPurchases::query()
             ->where('user_id', Auth()->id())
+            ->whereNot("status", 1)
             ->get();
         $pc = [];
         foreach ($tsp as $key => $value) {
@@ -446,7 +448,7 @@ class ProductController extends Controller
                         'tsp_id' => $value,
                         'valid_from' => $current_date,
                         'valid_till' => $last_date,
-                        'order_id'=>$request->order_id
+                        'order_id' => $request->order_id
                     ]);
             }
         } else {
@@ -471,10 +473,11 @@ class ProductController extends Controller
         ], 200);
     }
     public function getLatestProduct()
-    { $current_date = date('Y-m-d');
+    {
+        $current_date = date('Y-m-d');
         $product = TestSeriesProduct::query()
-            ->where('release_date','<=', $current_date )
-            ->orderBy('release_date','desc')
+            ->where('release_date', '<=', $current_date)
+            ->orderBy('release_date', 'desc')
             ->first();
 
         return response()->json([
