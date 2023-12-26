@@ -1195,14 +1195,23 @@ class AdminController extends Controller
                     if ($file->isValid()) {
                         $image_name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                         $filename = $image_name . '.' . $file->getClientOriginalExtension();
+                        $image_check = Images::where("image_name",$image_name)->first();
+                        if($image_check){
+                            if (File::exists(public_path($image_check->image_url))) {
+                                File::delete(public_path($image_check->image_url));
+                            }
+                        }else{
+                            Images::create([
+                                'image_url' => $filepath,
+                                'image_name' => $image_name,
+                                'tsc_id' => $request->tsc_id
+
+                            ]);
+                        }
+
                         $file->move(public_path('/images'), $filename);
                         $filepath = "/images/" . $filename;
-                        Images::create([
-                            'image_url' => $filepath,
-                            'image_name' => $image_name,
-                            'tsc_id' => $request->tsc_id
 
-                        ]);
                     } else {
                         return response()->json(['error' => 'File upload failed'], 400);
                     }
