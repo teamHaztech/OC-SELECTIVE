@@ -125,6 +125,14 @@ class AdminController extends Controller
             $totalQuestions = $this->get_Topic_detail($cate_id, $ts_id)["question_number"];
 
             $count = round($totalQuestions / count($topic));
+            $temp_c = 1;
+            foreach ($topic as $key => $value) {
+                $questions = Question::where('tst_id', $value)->get();
+                if (count($questions) < $count) {
+                    $count = (int) round($totalQuestions / (count($topic) - $temp_c));
+                    $temp_c++;
+                }
+            }
             foreach ($topic as $key => $value) {
                 $questions = Question::where('tst_id', $value)->get();
                 // dd (count( $questions));
@@ -159,11 +167,18 @@ class AdminController extends Controller
             if (count($nv_topic) == 0) {
                 $totalQuestions = $this->get_Topic_detail($cate_id, $ts_id)["question_number"];
                 ;
-
-                $count = round($totalQuestions / count($topic));
+                $count = (int) round($totalQuestions / count($topic));
+                $temp_c = 1;
                 foreach ($topic as $key => $value) {
                     $questions = Question::where('tst_id', $value)->get();
-                    // echo $questions;
+                    if (count($questions) < $count) {
+                        $count = (int) round($totalQuestions / (count($topic) - $temp_c));
+                        $temp_c++;
+                    }
+                }
+                foreach ($topic as $key => $value) {
+                    $questions = Question::where('tst_id', $value)->get();
+                    echo count($questions) . " ";
 
                     for ($i = 1; $i <= $count && $i <= count($questions); $i++) {
                         $randomIndex = rand(0, count($questions) - $i);
@@ -173,6 +188,7 @@ class AdminController extends Controller
                         $temp_selectedQuestions[] = $questions[count($questions) - $i];
                     }
                 }
+
                 for ($i = count($temp_selectedQuestions) - 1; $i >= 0 && count($selectedQuestions) < $totalQuestions; $i--) {
                     $randomIndex = rand(0, $i);
                     $temp = $temp_selectedQuestions[$i];
@@ -180,6 +196,7 @@ class AdminController extends Controller
                     $temp_selectedQuestions[$randomIndex] = $temp;
                     $selectedQuestions[] = $temp_selectedQuestions[$i];
                 }
+                // dd(count($selectedQuestions), $count, count($topic));
             } else {
                 $nv_topic = $nv_topic->map(function ($value) {
                     return $value['id'];
@@ -208,7 +225,14 @@ class AdminController extends Controller
                 } else {
 
                     $count = round(($totalQuestions - 5) / count($v_topic));
-
+                    $temp_c = 1;
+                    foreach ($topic as $key => $value) {
+                        $questions = Question::where('tst_id', $value)->get();
+                        if (count($questions) < $count) {
+                            $count = (int) round(($totalQuestions - 5) / (count($v_topic) - $temp_c));
+                            $temp_c++;
+                        }
+                    }
                     foreach ($v_topic as $key => $value) {
                         $questions = Question::where('tst_id', $value)->get();
                         for ($i = 1; $i <= $count && $i <= count($questions); $i++) {
@@ -1195,12 +1219,12 @@ class AdminController extends Controller
                     if ($file->isValid()) {
                         $image_name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                         $filename = $image_name . '.' . $file->getClientOriginalExtension();
-                        $image_check = Images::where("image_name",$image_name)->first();
-                        if($image_check){
+                        $image_check = Images::where("image_name", $image_name)->first();
+                        if ($image_check) {
                             if (File::exists(public_path($image_check->image_url))) {
                                 File::delete(public_path($image_check->image_url));
                             }
-                        }else{
+                        } else {
                             Images::create([
                                 'image_url' => $filepath,
                                 'image_name' => $image_name,
@@ -1280,11 +1304,11 @@ class AdminController extends Controller
                 ->update($value);
 
 
-                $para2 = preg_replace('/\s+/', ' ', trim($para));
-                // echo $para2;
-                ExtraQuestionField::where('q_id', $value['id'])->update([
-                    'paragraph' => $para2,
-                ]);
+            $para2 = preg_replace('/\s+/', ' ', trim($para));
+            // echo $para2;
+            ExtraQuestionField::where('q_id', $value['id'])->update([
+                'paragraph' => $para2,
+            ]);
 
         }
 
@@ -1332,11 +1356,11 @@ class AdminController extends Controller
 
         return response()->json([
             "message" => "Success",
-            "question" =>  $question,
+            "question" => $question,
             // $questio
         ], 200);
     }
-    public function updateQuestionWithId(Request $request,$q_id)
+    public function updateQuestionWithId(Request $request, $q_id)
     {
 
         $question = Question::query()->where("id", $q_id)->update($request->question);
