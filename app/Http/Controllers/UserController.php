@@ -601,6 +601,7 @@ class UserController extends Controller
                 $query->where('ts_id', $ts_id);
             })
             ->with('userPurchases.tsProduct')
+
             ->with('getTSSet')
             ->get();
         // return $user_RA;
@@ -620,8 +621,12 @@ class UserController extends Controller
     {
         $user_RA = UserTestSeries::query()
             ->where('id', $uts_id)
-            ->with(['getTSSet', 'getUTStatus.questions.qTopic'])
+            ->with(['getTSSet.getTsPC', 'getUTStatus.questions.qTopic','userPurchases.tsProduct'])
             ->first();
+
+
+       $total_questions = $this->get_Topic_detail($user_RA->getTSSet->getTsPC->tsc_id,$user_RA->userPurchases->tsProduct->ts_id)['question_number'];
+
 
         $user_RA->set_name = $user_RA->getTSSet->set_name;
 
@@ -663,6 +668,8 @@ class UserController extends Controller
         $filteredTopicsCollection = new Collection($filteredTopics);
         $user_RA->weak_topics = $filteredTopicsCollection->values();
         ;
+        $user_RA->total_questions =$total_questions;
+        $user_RA->negative_marks =(int)$total_questions - $user_RA->total_marks;
         unset($user_RA->getTSSet, $user_RA->getUTStatus);
         return response()->json([
             'all_results' => $user_RA,

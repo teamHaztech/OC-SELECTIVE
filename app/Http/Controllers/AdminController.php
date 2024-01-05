@@ -124,18 +124,24 @@ class AdminController extends Controller
         if ($cate_id == 3) {
             $totalQuestions = $this->get_Topic_detail($cate_id, $ts_id)["question_number"];
 
-            $count = round($totalQuestions / count($topic));
+            $count = (int) round($totalQuestions / count($topic));
             $temp_c = 1;
+
             foreach ($topic as $key => $value) {
+
                 $questions = Question::where('tst_id', $value)->get();
+
                 if (count($questions) < $count) {
-                    $count = (int) round($totalQuestions / (count($topic) - $temp_c));
+                    $c = (count($topic) - $temp_c) !== 0 ? (count($topic) - $temp_c) : 1;
+                    // echo   $c. " ";
+                    $count = (int) round($totalQuestions / $c);
                     $temp_c++;
                 }
             }
+
             foreach ($topic as $key => $value) {
                 $questions = Question::where('tst_id', $value)->get();
-                // dd (count( $questions));
+                // echo (count( $questions))." " ;
                 for ($i = 1; $i < $count && count($questions) >= $i; $i++) {
                     $randomIndex = rand(0, count($questions) - $i);
                     //    echo(count($questions) - $i);
@@ -148,7 +154,7 @@ class AdminController extends Controller
                 }
 
             }
-
+            // dd( $count, count($temp_selectedQuestions));
 
             for ($i = count($temp_selectedQuestions) - 1; $i >= 0 && count($selectedQuestions) < $totalQuestions; $i--) {
 
@@ -171,14 +177,15 @@ class AdminController extends Controller
                 $temp_c = 1;
                 foreach ($topic as $key => $value) {
                     $questions = Question::where('tst_id', $value)->get();
+                    $c = (count($topic) - $temp_c) !== 0 ? (count($topic) - $temp_c) : 1;
                     if (count($questions) < $count) {
-                        $count = (int) round($totalQuestions / (count($topic) - $temp_c));
+                        $count = (int) round($totalQuestions / $c);
                         $temp_c++;
                     }
                 }
                 foreach ($topic as $key => $value) {
                     $questions = Question::where('tst_id', $value)->get();
-                    echo count($questions) . " ";
+
 
                     for ($i = 1; $i <= $count && $i <= count($questions); $i++) {
                         $randomIndex = rand(0, count($questions) - $i);
@@ -229,7 +236,8 @@ class AdminController extends Controller
                     foreach ($topic as $key => $value) {
                         $questions = Question::where('tst_id', $value)->get();
                         if (count($questions) < $count) {
-                            $count = (int) round(($totalQuestions - 5) / (count($v_topic) - $temp_c));
+                            $c = (count($v_topic) - $temp_c) !== 0 ? (count($v_topic) - $temp_c) : 1;
+                            $count = (int) round($totalQuestions / $c);
                             $temp_c++;
                         }
                     }
@@ -489,6 +497,7 @@ class AdminController extends Controller
                     })
                     ->with('topics')
                     ->first();
+
             }
 
             return response()->json([
@@ -578,7 +587,7 @@ class AdminController extends Controller
                 ->where('id', $item['tspc_id'])
                 ->with('getTestSeriesProduct')
                 ->first();
-            // return $tspc->getTestSeriesProduct->ts_id;
+            // return  $tspc;
             $cate = TestSeriesCategories::whereHas('topics', function ($query) use ($item) {
                 $query->where('id', $item['tst_id']);
             })
@@ -941,6 +950,7 @@ class AdminController extends Controller
     {
         $topics = TestSeriesTopics::where('tsc_id', $tsc_id)
             ->where('ts_id', $ts_id)
+
             ->get();
         return response()->json([
             'topics' => $topics
@@ -1220,22 +1230,25 @@ class AdminController extends Controller
                         $image_name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                         $filename = $image_name . '.' . $file->getClientOriginalExtension();
                         $image_check = Images::where("image_name", $image_name)->first();
-                        if ($image_check) {
-                            if (File::exists(public_path($image_check->image_url))) {
-                                File::delete(public_path($image_check->image_url));
-                            }
-                        } else {
-                            Images::create([
+
+                        //     if (File::exists(public_path($image_check->image_url))) {
+                        //         File::delete(public_path($image_check->image_url));
+                        //     }
+                        // } else {
+
+
+
+                        $file->move(public_path('/images'), $filename);
+                        $filepath = "/images/" . $filename;
+                        if (!$image_check) {
+                            Images::UpdateOrcreate([
                                 'image_url' => $filepath,
                                 'image_name' => $image_name,
                                 'tsc_id' => $request->tsc_id
 
                             ]);
                         }
-
-                        $file->move(public_path('/images'), $filename);
-                        $filepath = "/images/" . $filename;
-
+                    ;
                     } else {
                         return response()->json(['error' => 'File upload failed'], 400);
                     }
@@ -1515,6 +1528,21 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'Successfully Topic added'
+        ], 200);
+    }
+
+    public function deleteImage(Request $request){
+        foreach ($request->imageIds as $key => $id) {
+            $image = Images::where('id', $id)->first();
+            if($image){
+                if (File::exists(public_path($image->image_url))) {
+                    File::delete(public_path($image->image_url));
+                }
+            }
+            Images::where('id', $id)->delete();
+        }
+         return response()->json([
+            'message' => 'Successfully Deleted'
         ], 200);
     }
 }

@@ -187,6 +187,8 @@ class ProductController extends Controller
             ])
 
             ->get();
+
+        // return $purchases;
         $new_purchases = [];
         if (count($purchases->toArray()) == 0) {
             return response()->json([
@@ -194,6 +196,7 @@ class ProductController extends Controller
             ], 200);
         }
         foreach ($purchases as $key => $value) {
+
             $temp_data = $value->tsProduct->getTsProductCategory;
             $test_data = array_column($temp_data->toArray(), 'test_series_categories');
 
@@ -203,9 +206,14 @@ class ProductController extends Controller
             })->all();
 
             foreach ($value->category as $value2) {
-                // return $value2;/
+
+                //
+
                 $timer = $this->get_Topic_detail($value2['id'], $value->tsProduct->ts_id)["time"];
                 foreach ($value2['set'] as $value3) {
+                    $complete_status = UserTestSeries::where("tsps_id", $value->id)->where("set_id", $value3->id)->where("complete_status", 1)->get();
+                    // echo $complete_status;
+                    $value3->complete_status = $complete_status ? 1 : 0;
                     $value3->purchase_id = $value->id;
                     $value3->valid_from = $value->valid_from;
                     $value3->valid_till = $value->valid_till;

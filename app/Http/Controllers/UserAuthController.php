@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OTPMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use App\Models\User;
+use Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-use Resend\Laravel\Facades\Resend;
+// use Resend\Laravel\Facades\Resend;
 
 class UserAuthController extends Controller
 {
@@ -220,6 +222,7 @@ class UserAuthController extends Controller
         $user = User::query()
         ->where('email', $request->email)
         ->first();
+
         if(!$user){
             return response()->json([
                 'message' => 'Not found',
@@ -227,12 +230,11 @@ class UserAuthController extends Controller
         }
 
         $otp = rand(1111, 9999);
-        // Resend::emails()->send([
-        //     'from' => 'Acme <onboarding@resend.dev>',
-        //     'to' => [$request->email],
-        //     'subject' => 'Confirmation',
-        //     'html' => "<h2>Your OTP <h1>" . $otp . "</h1></h2>",
-        // ]);
+        $mailData = [
+            'title'=>'Your OTP',
+            'body'=>$otp
+        ];
+        Mail::to($request->email)->send(new OTPMail($mailData));
 
         return response()->json([
             'message' => 'success',
