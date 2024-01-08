@@ -916,6 +916,9 @@ class AdminController extends Controller
         $current_date = date('Y-m-d');
         $product = TestSeriesProduct::where('id', $p_id)
             ->where('release_date', "<=", $current_date)
+            ->whereHas('getTsProductCategory',function($query){
+                $query->whereNot('total_set',null);
+            })
             ->first();
         $tst->release_status = !!$product;
 
@@ -1228,7 +1231,7 @@ class AdminController extends Controller
                     // $file = $value;
                     if ($file->isValid()) {
                         $image_name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                        $filename = $image_name . '.' . $file->getClientOriginalExtension();
+                        $filename = $image_name . '.' . strtolower($file->getClientOriginalExtension());
                         $image_check = Images::where("image_name", $image_name)->first();
 
                         //     if (File::exists(public_path($image_check->image_url))) {
