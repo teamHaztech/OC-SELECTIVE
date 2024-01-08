@@ -213,7 +213,7 @@ class ProductController extends Controller
                 foreach ($value2['set'] as $value3) {
                     $complete_status = UserTestSeries::where("tsps_id", $value->id)->where("set_id", $value3->id)->where("complete_status", 1)->get();
                     // echo $complete_status;
-                    $value3->complete_status = $complete_status ? 1 : 0;
+                    $value3->complete_status = count($complete_status )!=0? 1 : 0;
                     $value3->purchase_id = $value->id;
                     $value3->valid_from = $value->valid_from;
                     $value3->valid_till = $value->valid_till;
@@ -380,6 +380,9 @@ class ProductController extends Controller
             ->where('release_date', "<=", $current_date)
             ->when($id, function ($query, $id) {
                 return $query->where('ts_id', $id);
+            })
+            ->whereHas('getTsProductCategory',function($query){
+                $query->whereNot('total_set',null);
             })
             ->get(['*']);
 
