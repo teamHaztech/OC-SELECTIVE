@@ -458,7 +458,8 @@ class AdminController extends Controller
                 // Generate a unique filename
                 // $imageFiles = glob(public_path('/images/product-*.*'));
                 // $count = count($imageFiles) + 1;
-                $filename = "product-" . $filename = time() . '.' . $file->getClientOriginalExtension();
+                $last = TestSeriesProduct::orderBy('id', 'desc')->first();
+                $filename = "product-" . ($last ? ($last->id + 1) : 1) . '.' . $file->getClientOriginalExtension();
                 // Move the file to the desired location
                 $file->move(public_path('/images'), $filename);
                 // Update the data with the stored image path
@@ -468,6 +469,7 @@ class AdminController extends Controller
                 return response()->json(['error' => 'File upload failed'], 400);
             }
         }
+
 
         $tsp = TestSeriesProduct::updateOrCreate(['id' => $request->id ? $request->id : null], $data);
 
@@ -517,15 +519,22 @@ class AdminController extends Controller
     public function updateProduct(Request $request, $p_id)
     {
         $data = $request->input();
+
         if ($request->hasFile('p_image')) {
+
             $file = $request->file('p_image');
             $tsp = TestSeriesProduct::where('id', $p_id)->first();
-            if (File::exists(public_path($tsp->p_image))) {
-                File::delete(public_path($tsp->p_image));
-            }
+            // if (File::exists(public_path($tsp->p_image))) {
+            //     File::delete(public_path($tsp->p_image));
+            // }
             // Validate the uploaded file
             if ($file->isValid()) {
-                $filename = "product-" . $filename = time() . '.' . $file->getClientOriginalExtension();
+                // $last = TestSeriesProduct::where('id', $p_id)->first();
+                if (File::exists(public_path($tsp->p_image))) {
+                    File::delete(public_path($tsp->p_image));
+                }
+
+                $filename = "product-" . $tsp->id . '.' . $file->getClientOriginalExtension();
 
                 $file->move(public_path('/images'), $filename);
 
@@ -533,6 +542,7 @@ class AdminController extends Controller
             } else {
                 return response()->json(['error' => 'File upload failed'], 400);
             }
+
         }
 
         TestSeriesProduct::where('id', $p_id)->update($data);
@@ -916,8 +926,8 @@ class AdminController extends Controller
         $current_date = date('Y-m-d');
         $product = TestSeriesProduct::where('id', $p_id)
             ->where('release_date', "<=", $current_date)
-            ->whereHas('getTsProductCategory',function($query){
-                $query->whereNot('total_set',null);
+            ->whereHas('getTsProductCategory', function ($query) {
+                $query->whereNot('total_set', null);
             })
             ->first();
         $tst->release_status = !!$product;
@@ -1251,7 +1261,7 @@ class AdminController extends Controller
 
                             ]);
                         }
-                    ;
+                        ;
                     } else {
                         return response()->json(['error' => 'File upload failed'], 400);
                     }
@@ -1534,17 +1544,18 @@ class AdminController extends Controller
         ], 200);
     }
 
-    public function deleteImage(Request $request){
+    public function deleteImage(Request $request)
+    {
         foreach ($request->imageIds as $key => $id) {
             $image = Images::where('id', $id)->first();
-            if($image){
+            if ($image) {
                 if (File::exists(public_path($image->image_url))) {
                     File::delete(public_path($image->image_url));
                 }
             }
             Images::where('id', $id)->delete();
         }
-         return response()->json([
+        return response()->json([
             'message' => 'Successfully Deleted'
         ], 200);
     }
