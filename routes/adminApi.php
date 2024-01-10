@@ -19,7 +19,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['jwt.role:admin', 'jwt.auth'
     Route::post('/add-test-series-product', [AdminController::class, 'addProduct']);
     Route::post('/update-product-status/{p_id}', [AdminController::class, 'productStatus']);
     Route::post('/add-test-series-topics', [AdminController::class, 'addTSTopic']);
-    Route::put('/update-test-series-product/{p_id}', [AdminController::class, 'updateProduct']);
+    Route::post('/update-test-series-product/{p_id}', [AdminController::class, 'updateProduct']);
     Route::delete('/delete-product/{p_id}', [AdminController::class, 'deleteProduct']);
     Route::get('/show-product/{ts_id}', [ProductController::class, 'showAdminProduct']);
     Route::get('/get-test-series', [ProductController::class, 'getAdminTestSeries']);

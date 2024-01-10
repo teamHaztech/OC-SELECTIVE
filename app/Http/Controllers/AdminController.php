@@ -418,7 +418,9 @@ class AdminController extends Controller
 
     public function addProduct(Request $request)
     {
-
+        // $data = $request->all();
+        // \Log::info('add Received data:', $data);
+        // return $data;
         $category = $request->tsc_id;
         $data = $request->except(['id', 'tsc_id']);
 
@@ -518,7 +520,10 @@ class AdminController extends Controller
 
     public function updateProduct(Request $request, $p_id)
     {
-        $data = $request->input();
+          $data = $request->all();
+        //  \Log::info('Received data:', $data);
+        //  return  $request->hasFile('p_image');
+        // $data = $request->p_name;
 
         if ($request->hasFile('p_image')) {
 
