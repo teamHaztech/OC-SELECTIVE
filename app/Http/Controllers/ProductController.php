@@ -266,7 +266,7 @@ class ProductController extends Controller
     {
         $tsp = TestSeriesPurchases::query()
             ->where('user_id', Auth()->id())
-            ->whereNot("status", 1)
+            ->where("status", 1)
             ->get();
         $pc = [];
         foreach ($tsp as $key => $value) {
@@ -288,7 +288,7 @@ class ProductController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
+        $cart_data ="";
         if (is_array($request->p_id)) {
 
             foreach ($request->p_id as $item) {
@@ -301,8 +301,8 @@ class ProductController extends Controller
                 if ($id)
                     continue;
 
-                Cart::query()
-                    ->updateOrInsert([
+               $cart_data = Cart::query()
+                    ->create([
                         'user_id' => $request->u_id,
                         'tsp_id' => $item,
                     ]);
@@ -320,15 +320,17 @@ class ProductController extends Controller
                     'message' => 'Already purchased'
                 ], 200);
 
-            Cart::query()
-                ->updateOrInsert([
+                $cart_data = Cart::query()
+                ->create
+                    ([
                     'user_id' => $request->u_id,
                     'tsp_id' => $request->p_id,
                 ]);
         }
 
         return response()->json([
-            'message' => 'Added successfully'
+            'message' => 'Added successfully',
+            $cart_data
         ], 200);
 
     }
@@ -489,6 +491,9 @@ class ProductController extends Controller
         $product = TestSeriesProduct::query()
             ->where('release_date', '<=', $current_date)
             ->orderBy('release_date', 'desc')
+            ->whereHas('getTsProductCategory',function($query){
+                $query->whereNot('total_set',null);
+            })
             ->first();
 
         return response()->json([
