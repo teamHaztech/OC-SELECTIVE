@@ -527,6 +527,9 @@ class UserController extends Controller
             ->where('status', 1)
             ->where('release_date', "<=", $current_date)
             // ->with('tsPurchases')
+            ->whereHas('getTsProductCategory',function($query){
+                $query->whereNot('total_set',null);
+            })
             ->get();
 
         return response()->json([
