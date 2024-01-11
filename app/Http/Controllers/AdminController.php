@@ -1046,9 +1046,12 @@ class AdminController extends Controller
         $product = TestSeriesProduct::where('id', $p_id)
             ->first();
         // File::delete($product->p_image);
-        if (File::exists(public_path($product->p_image))) {
-            File::delete(public_path($product->p_image));
+        if($product->p_image){
+            if (File::exists(public_path($product->p_image))) {
+                File::delete(public_path($product->p_image));
+            }
         }
+
         TestSeriesProduct::where('id', $p_id)
             ->delete();
 
