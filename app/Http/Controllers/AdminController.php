@@ -1260,13 +1260,6 @@ class AdminController extends Controller
                         $filename = $image_name . '.' . strtolower($file->getClientOriginalExtension());
                         $image_check = Images::where("image_name", $image_name)->first();
 
-                        //     if (File::exists(public_path($image_check->image_url))) {
-                        //         File::delete(public_path($image_check->image_url));
-                        //     }
-                        // } else {
-
-
-
                         $file->move(public_path('/images'), $filename);
                         $filepath = "/images/" . $filename;
                         if (!$image_check) {
@@ -1279,7 +1272,7 @@ class AdminController extends Controller
                         }
                         ;
                     } else {
-                        return response()->json(['error' => 'File upload failed'], 400);
+                        // return response()->json(['error' => 'File upload failed'], 400);
                     }
                 }
             }
