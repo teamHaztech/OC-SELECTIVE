@@ -859,19 +859,13 @@ class AdminController extends Controller
         // $tst = TestSeriesTopics::where('id', $tst_id)
         // ->with('getQuestion')
         // ->first();
-    foreach ($tst->getQuestion as $key => $value) {
-        // return explode(".", $value->option_1)[1];
-        if (count($value->questionImage) != 0) {
-            QuestionImage::where('q_id', $value->id)
-            ->delete();
+        // foreach ($tst->getQuestion as $key => $value) {
 
-        }
-        Question::where('id', $value->id)
-        ->delete();
-    }
+        // }
 
 
         if ($questions) {
+
             Question::where('tst_id', $tst_id)
                 ->delete();
             if ($tst->tsc_id == 3 || $tst->tsc_id == 1) {
