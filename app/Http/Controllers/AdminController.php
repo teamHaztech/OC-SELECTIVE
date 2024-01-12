@@ -1271,9 +1271,10 @@ class AdminController extends Controller
                             ]);
                         }
                         ;
-                    } else {
-                        // return response()->json(['error' => 'File upload failed'], 400);
+                    }else{
+                        continue;
                     }
+
                 }
             }
             return response()->json([
