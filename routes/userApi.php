@@ -14,6 +14,7 @@ Route::get('/refresh-token',[UserAuthController::class,'refresh']);
 Route::get('/get-product-data/{id?}',[ProductController::class,'showProduct']);
 Route::get('/one-product-data/{id}',[ProductController::class,'sProduct']);
 Route::get('/get-test-series',[ProductController::class,'getTestSeries']);
+Route::get('/get-sample-question',[ProductController::class,'getSampleQuestion']);
 Route::post('/send-otp-mail',[UserAuthController::class,'sendEmail']);
 Route::post('/password-change2',[UserAuthController::class,'passwordChange2']);
 Route::group(['middleware' => ['jwt.role:users','jwt.auth']],function ()

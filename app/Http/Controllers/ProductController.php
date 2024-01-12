@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
+use App\Models\Question;
 use App\Models\TestSeries;
 use App\Models\TestSeriesCategories;
 use App\Models\TestSeriesProduct;
@@ -213,7 +214,7 @@ class ProductController extends Controller
                 foreach ($value2['set'] as $value3) {
                     $complete_status = UserTestSeries::where("tsps_id", $value->id)->where("set_id", $value3->id)->where("complete_status", 1)->get();
                     // echo $complete_status;
-                    $value3->complete_status = count($complete_status )!=0? 1 : 0;
+                    $value3->complete_status = count($complete_status) != 0 ? 1 : 0;
                     $value3->purchase_id = $value->id;
                     $value3->valid_from = $value->valid_from;
                     $value3->valid_till = $value->valid_till;
@@ -288,7 +289,7 @@ class ProductController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-        $cart_data ="";
+        $cart_data = "";
         if (is_array($request->p_id)) {
 
             foreach ($request->p_id as $item) {
@@ -301,7 +302,7 @@ class ProductController extends Controller
                 if ($id)
                     continue;
 
-               $cart_data = Cart::query()
+                $cart_data = Cart::query()
                     ->create([
                         'user_id' => $request->u_id,
                         'tsp_id' => $item,
@@ -320,12 +321,12 @@ class ProductController extends Controller
                     'message' => 'Already purchased'
                 ], 200);
 
-                $cart_data = Cart::query()
+            $cart_data = Cart::query()
                 ->create
-                    ([
-                    'user_id' => $request->u_id,
-                    'tsp_id' => $request->p_id,
-                ]);
+                ([
+                        'user_id' => $request->u_id,
+                        'tsp_id' => $request->p_id,
+                    ]);
         }
 
         return response()->json([
@@ -383,8 +384,8 @@ class ProductController extends Controller
             ->when($id, function ($query, $id) {
                 return $query->where('ts_id', $id);
             })
-            ->whereHas('getTsProductCategory',function($query){
-                $query->whereNot('total_set',null);
+            ->whereHas('getTsProductCategory', function ($query) {
+                $query->whereNot('total_set', null);
             })
             ->get(['*']);
 
@@ -491,11 +492,11 @@ class ProductController extends Controller
         $product = TestSeriesProduct::query()
             ->where('release_date', '<=', $current_date)
             ->orderBy('release_date', 'desc')
-            ->whereHas('getTsProductCategory',function($query){
-                $query->whereNot('total_set',null);
+            ->whereHas('getTsProductCategory', function ($query) {
+                $query->whereNot('total_set', null);
             })
             ->first();
-        if($product){
+        if ($product) {
             return response()->json([
                 'latest_product_id' => $product->id
             ], 200);
@@ -506,6 +507,31 @@ class ProductController extends Controller
     }
 
 
+    public function getSampleQuestion()
+    {
+        $oc_topic = TestSeriesTopics::whereIn("tsc_id", [1, 3])->where('ts_id', 1)->get();
+        $selective_topic = TestSeriesTopics::whereIn("tsc_id", [1, 3])->where('ts_id', 2)->get();
+        $oc_question = [];
+        $selective_question = [];
+        function getRandomQuestion($topicSet) {
+            if (count($topicSet) > 0) {
+                $randomIndex = rand(0, count($topicSet) - 1);
+                return Question::where('tst_id', $topicSet[$randomIndex]->id)->first();
+            }
+            return null;
+        }
+        for ($i = 0; $i < 4; $i++) {
+            $oc_question[] = getRandomQuestion($oc_topic);
+        }
 
+        // Fetch 4 random questions for Selective
+        for ($i = 0; $i < 4; $i++) {
+            $selective_question[] = getRandomQuestion($selective_topic);
+        }
+        return response()->json([
+            'oc_question' => $oc_question,
+            'selective_question' => $selective_question
+        ], 200);
+    }
 
 }
