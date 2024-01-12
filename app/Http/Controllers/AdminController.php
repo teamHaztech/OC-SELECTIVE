@@ -848,7 +848,7 @@ class AdminController extends Controller
     public function updateTSTopic(Request $request, $tst_id)
     {
 
-        $tst = TestSeriesTopics::where('id', $tst_id)->first();
+        $tst = TestSeriesTopics::where('id', $tst_id)->with('getQuestion')->first();
 
         $questions = $request->question;
 
@@ -856,6 +856,20 @@ class AdminController extends Controller
         if (count($data) != 0) {
             TestSeriesTopics::where('id', $tst_id)->update($data);
         }
+        // $tst = TestSeriesTopics::where('id', $tst_id)
+        // ->with('getQuestion')
+        // ->first();
+    foreach ($tst->getQuestion as $key => $value) {
+        // return explode(".", $value->option_1)[1];
+        if (count($value->questionImage) != 0) {
+            QuestionImage::where('q_id', $value->id)
+            ->delete();
+
+        }
+        Question::where('id', $value->id)
+        ->delete();
+    }
+
 
         if ($questions) {
             Question::where('tst_id', $tst_id)
