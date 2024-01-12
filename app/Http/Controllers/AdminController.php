@@ -520,7 +520,7 @@ class AdminController extends Controller
 
     public function updateProduct(Request $request, $p_id)
     {
-          $data = $request->all();
+        $data = $request->all();
         //  \Log::info('Received data:', $data);
         //  return  $request->hasFile('p_image');
         // $data = $request->p_name;
@@ -1046,7 +1046,7 @@ class AdminController extends Controller
         $product = TestSeriesProduct::where('id', $p_id)
             ->first();
         // File::delete($product->p_image);
-        if($product->p_image){
+        if ($product->p_image) {
             if (File::exists(public_path($product->p_image))) {
                 File::delete(public_path($product->p_image));
             }
@@ -1452,7 +1452,7 @@ class AdminController extends Controller
 
         // Decode the Base64 string into binary image data
         $imageData = base64_decode($base64Image);
-        $count = QuestionImage::count();
+        $count = Question::where("nvq", 1)->count();
         if ($imageData !== false) {
             // Generate a unique filename for the image (e.g., using timestamp)
             $filename = 'q_image_' . $count + 1 . time() . '.png';

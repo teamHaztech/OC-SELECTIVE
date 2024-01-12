@@ -123,7 +123,7 @@ class ProductController extends Controller
 
     public function checkUserPurchaseExpire($user_id)
     {
-        $current_date = date('Y-m-d');
+        $current_date = date('d-m-Y');
         $purchases = TestSeriesPurchases::query()
             ->where('user_id', $user_id)
             ->where('status', 1)
@@ -439,7 +439,7 @@ class ProductController extends Controller
 
 
         // $current = Carbon::now();
-        $current_date = date('Y-m-d');
+        $current_date = date('d-m-Y');
         // $product = TestSeriesProduct::query()
         //     ->where('id', $request->p_id)
         //     ->first();
@@ -454,7 +454,7 @@ class ProductController extends Controller
                     ->where('id', $value)
                     ->first();
 
-                $last_date = date('Y-m-d', strtotime('+' . (string) $product->test_month_limit . ' months'));
+                $last_date = date('d-m-Y', strtotime('+' . (string) $product->test_month_limit . ' months'));
                 TestSeriesPurchases::query()
                     ->updateOrInsert([
                         'user_id' => Auth()->id(),
@@ -495,10 +495,14 @@ class ProductController extends Controller
                 $query->whereNot('total_set',null);
             })
             ->first();
-
+        if($product){
+            return response()->json([
+                'latest_product_id' => $product->id
+            ], 200);
+        }
         return response()->json([
-            'latest_product_id' => $product->id
-        ], 200);
+            'message' => "No latest Product"
+        ], 404);
     }
 
 
