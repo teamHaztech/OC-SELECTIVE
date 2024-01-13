@@ -815,9 +815,9 @@ class AdminController extends Controller
 
             }
         }
-
         return response()->json([
-            'message' => 'Successfully Topic added'
+            'message' => 'Successfully Topic added',
+
         ], 200);
     }
     public function getTopicQuestion($tst_id)
@@ -869,19 +869,22 @@ class AdminController extends Controller
             Question::where('tst_id', $tst_id)
                 ->delete();
             if ($tst->tsc_id == 3 || $tst->tsc_id == 1) {
+
                 foreach ($questions as $key => $item) {
-                    $ans = preg_replace('/\s+/', ' ', trim($item['Answer']));
+                    $item = array_change_key_case($item, CASE_UPPER);
+                    $ans = preg_replace('/\s+/', ' ', trim($item['ANSWER']));
                     $q_data = Question::query()
                         ->create([
-                            'question' => $item['Question'],
-                            'option_1' => $item['Options']['a'],
-                            'option_2' => $item['Options']['b'],
-                            'option_3' => $item['Options']['c'],
-                            'option_4' => $item['Options']['d'],
+                            'question' => $item['QUESTION'],
+                            'option_1' => $item['OPTIONS']['a'],
+                            'option_2' => $item['OPTIONS']['b'],
+                            'option_3' => $item['OPTIONS']['c'],
+                            'option_4' => $item['OPTIONS']['d'],
                             'correct_option' => $ans,
-                            'explanation' => $item['Explanation'],
-                            'tst_id' => $tst_id,
+                            'explanation' => $item['EXPLANATION'],
+                            'tst_id' => $tst->id,
                         ]);
+                    // RETURN ($item);
                     if (array_key_exists("IMAGES", $item)) {
                         foreach ($item['IMAGES'] as $key => $image) {
                             QuestionImage::create([
@@ -889,36 +892,47 @@ class AdminController extends Controller
                                 'image_url' => $image
                             ]);
                         }
+                    }
+                    if (array_key_exists("PARAGRAPH", $item) || array_key_exists("CONVERSATION", $item)) {
+                        ExtraQuestionField::create([
+                            'q_id' => $q_data->id,
+                            'paragraph' => $item["PARAGRAPH"],
+                            'conversation' => $item["CONVERSATION"]
+                        ]);
+
                     }
 
                 }
-            } elseif ($tst->tsc_id == 2) {
-                foreach ($questions as $key => $item) {
-                    $ans = preg_replace('/\s+/', ' ', trim($item['Answer']));
-                    $q_data = Question::query()
-                        ->create([
-                            'question' => $item['Question'],
-                            'option_1' => $item['Option_A'],
-                            'option_2' => $item['Option_B'],
-                            'option_3' => $item['Option_C'],
-                            'option_4' => $item['Option_D'],
-                            'correct_option' => $ans,
-                            'explanation' => $item['Explanation'],
-                            'tst_id' => $tst_id,
-                        ]);
-                    if (array_key_exists("IMAGES", $item)) {
-                        foreach ($item['IMAGES'] as $key => $image) {
-                            QuestionImage::create([
-                                'q_id' => $q_data->id,
-                                'image_url' => $image
-                            ]);
-                        }
-                    }
-                }
             }
+            // elseif ($tst->tsc_id == 2) {
+            //     foreach ($questions as $key => $item) {
+            //         $ans = preg_replace('/\s+/', ' ', trim($item['Answer']));
+            //         $q_data = Question::query()
+            //             ->create([
+            //                 'question' => $item['Question'],
+            //                 'option_1' => $item['Option_A'],
+            //                 'option_2' => $item['Option_B'],
+            //                 'option_3' => $item['Option_C'],
+            //                 'option_4' => $item['Option_D'],
+            //                 'correct_option' => $ans,
+            //                 'explanation' => $item['Explanation'],
+            //                 'tst_id' => $tst_id,
+            //             ]);
+            //         if (array_key_exists("IMAGES", $item)) {
+            //             foreach ($item['IMAGES'] as $key => $image) {
+            //                 QuestionImage::create([
+            //                     'q_id' => $q_data->id,
+            //                     'image_url' => $image
+            //                 ]);
+            //             }
+            //         }
+            //     }
+            // }
         }
+
         return response()->json([
-            'message' => 'Successfully Topic Updated'
+            'message' => 'Successfully Topic Updated',
+
         ], 200);
     }
 
