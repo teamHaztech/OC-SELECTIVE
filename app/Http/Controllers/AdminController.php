@@ -749,13 +749,19 @@ class AdminController extends Controller
             foreach ($questions as $key => $item) {
                 $item = array_change_key_case($item, CASE_UPPER);
                 $ans = preg_replace('/\s+/', ' ', trim($item['ANSWER']));
+                $options = [
+                    'option_1' => isset($item['OPTIONS']['a']) ? $item['OPTIONS']['a'] : null,
+                    'option_2' => isset($item['OPTIONS']['b']) ? $item['OPTIONS']['b'] : null,
+                    'option_3' => isset($item['OPTIONS']['c']) ? $item['OPTIONS']['c'] : null,
+                    'option_4' => isset($item['OPTIONS']['d']) ? $item['OPTIONS']['d'] : null,
+                ];
                 $q_data = Question::query()
                     ->create([
                         'question' => $item['QUESTION'],
-                        'option_1' => $item['OPTIONS']['a'],
-                        'option_2' => $item['OPTIONS']['b'],
-                        'option_3' => $item['OPTIONS']['c'],
-                        'option_4' => $item['OPTIONS']['d'],
+                        'option_1' => $options['option_1'],
+                        'option_2' => $options['option_2'],
+                        'option_3' => $options['option_3'],
+                        'option_4' => $options['option_4'],
                         'correct_option' => $ans,
                         'explanation' => $item['EXPLANATION'],
                         'tst_id' => $tst->id,
@@ -783,13 +789,19 @@ class AdminController extends Controller
                 $item = array_change_key_case($item, CASE_UPPER);
                 $ans = preg_replace('/\s+/', ' ', trim($item['ANSWER']));
 
+                $options = [
+                    'option_1' => isset($item['OPTIONS']['a']) ? $item['OPTIONS']['a'] : null,
+                    'option_2' => isset($item['OPTIONS']['b']) ? $item['OPTIONS']['b'] : null,
+                    'option_3' => isset($item['OPTIONS']['c']) ? $item['OPTIONS']['c'] : null,
+                    'option_4' => isset($item['OPTIONS']['d']) ? $item['OPTIONS']['d'] : null,
+                ];
                 $q_data = Question::query()
                     ->create([
                         'question' => $item['QUESTION'],
-                        'option_1' => $item['OPTION_A'],
-                        'option_2' => $item['OPTION_B'],
-                        'option_3' => $item['OPTION_C'],
-                        'option_4' => $item['OPTION_D'],
+                        'option_1' => $options['option_1'],
+                        'option_2' => $options['option_2'],
+                        'option_3' => $options['option_3'],
+                        'option_4' => $options['option_4'],
                         'correct_option' => $ans,
                         'explanation' => $item['EXPLANATION'],
                         'tst_id' => $tst->id,
