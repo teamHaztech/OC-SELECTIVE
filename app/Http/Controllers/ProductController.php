@@ -136,22 +136,26 @@ class ProductController extends Controller
             ->get();
         $date = new DateTime($current_date);
 
-        // dd( $date );
+
         // $current_date = $date->format('Y-m-d');
         // return   $purchases;
         $pre_exp_purchase = [];
         // print($value);
         foreach ($purchases as $value) {
-            if ($current_date > $value->valid_till) {
+            $valid_till = new DateTime($value->valid_till);
+
+            if ($date >  $valid_till) {
+                // print_r ($date);
+                // print_r ($valid_till);
                 TestSeriesPurchases::query()
                     ->where('id', $value->id)
                     ->update(['status' => 0]);
             }
-            $valid_till = new DateTime($value->valid_till);
+
 
             $interval = $date->diff($valid_till);
-            // return $interval;
-            if ($interval->days < 15) {
+            // echo $interval->days;
+            if ($interval->days < 15 && $date <=  $valid_till) {
                 $value->p_name = $value->tsProduct->p_name;
                 $value->remaining_days = $interval->days;
                 unset($value->tsProduct);
