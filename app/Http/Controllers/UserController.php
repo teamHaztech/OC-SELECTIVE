@@ -303,7 +303,7 @@ class UserController extends Controller
 
             $question_timer = (float) ($uts->current_timer ?? $timer) - $timer;
             // return  $question_timer;
-            $requestDataWithoutTimer = ['test_answer' => $request->test_answer, 'test_time' => round($question_timer, 2), 'status_id' => $request->status_id];
+            $requestDataWithoutTimer = ['test_answer' => $request->test_answer, 'test_time' => abs(round($question_timer, 2)), 'status_id' => $request->status_id];
             //
 
         }
