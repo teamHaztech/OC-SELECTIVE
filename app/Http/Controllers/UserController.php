@@ -301,9 +301,9 @@ class UserController extends Controller
 
             // }
 
-            $question_timer = (float)($uts->current_timer ?? $timer) - $timer;
+            $question_timer = (float) ($uts->current_timer ?? $timer) - $timer;
             // return  $question_timer;
-            $requestDataWithoutTimer = ['test_answer' => $request->test_answer, 'test_time' => round($question_timer,2), 'status_id' => $request->status_id];
+            $requestDataWithoutTimer = ['test_answer' => $request->test_answer, 'test_time' => round($question_timer, 2), 'status_id' => $request->status_id];
             //
 
         }
@@ -403,7 +403,7 @@ class UserController extends Controller
         }
 
         // return ([$total]);
-        $time_taken = (int)($duration) - (int)($request->current_timer);
+        $time_taken = (int) ($duration) - (int) ($request->current_timer);
 
         UserTestSeries::query()
             ->where('id', $id)
@@ -547,10 +547,12 @@ class UserController extends Controller
 
     public function getTSPurchasesLimit($user_id)
     {
+        $current_date = date('d-m-Y');
         $purchases = TestSeriesPurchases::query()
             ->where('user_id', $user_id)
             ->where('status', 1)
             // ->with('tsProduct')
+            ->where('valid_till', ">=", $current_date)
             ->with([
                 'tsProduct' => function ($query) {
                     $query->with(

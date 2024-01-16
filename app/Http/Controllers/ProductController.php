@@ -124,6 +124,7 @@ class ProductController extends Controller
 
     public function checkUserPurchaseExpire($user_id)
     {
+
         $current_date = date('d-m-Y');
         $purchases = TestSeriesPurchases::query()
             ->where('user_id', $user_id)
@@ -134,9 +135,12 @@ class ProductController extends Controller
             ->with('tsProduct')
             ->get();
         $date = new DateTime($current_date);
+
+        // dd( $date );
         // $current_date = $date->format('Y-m-d');
         // return   $purchases;
         $pre_exp_purchase = [];
+        // print($value);
         foreach ($purchases as $value) {
             if ($current_date > $value->valid_till) {
                 TestSeriesPurchases::query()
@@ -160,20 +164,23 @@ class ProductController extends Controller
         if (count($pre_exp_purchase) == 0) {
             return response()->json([
                 'message' => 'no purchase is being expired',
+                'tsp' => []
             ], 200);
         }
 
         return response()->json([
+            'message' => 'getting Expired',
             'tsp' => $pre_exp_purchase,
-        ], 403);
+        ], 200);
     }
 
     public function getTSPurchases($ts_id)
     {
-
+        $current_date = date('d-m-Y');
         $purchases = TestSeriesPurchases::query()
             ->where('user_id', Auth()->id())
             ->where('status', 1)
+            ->where('valid_till', ">=", $current_date)
             ->whereHas('tsProduct', function ($query) use ($ts_id) {
                 $query->where('ts_id', $ts_id);
             })
