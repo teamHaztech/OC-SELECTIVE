@@ -781,8 +781,8 @@ class AdminController extends Controller
                 if (array_key_exists("PARAGRAPH", $item) || array_key_exists("CONVERSATION", $item)) {
                     ExtraQuestionField::create([
                         'q_id' => $q_data->id,
-                        'paragraph' => $item["PARAGRAPH"],
-                        'conversation' => $item["CONVERSATION"]
+                        'paragraph' => isset($item["PARAGRAPH"])? $item["PARAGRAPH"]: null,
+                        'conversation' => isset($item["CONVERSATION"]) ? $item["CONVERSATION"]: null,
                     ]);
 
                 }
@@ -832,7 +832,7 @@ class AdminController extends Controller
         }
         return response()->json([
             'message' => 'Successfully Topic added',
-
+            count($questions )
         ], 200);
     }
     public function getTopicQuestion($tst_id)
@@ -911,8 +911,8 @@ class AdminController extends Controller
                     if (array_key_exists("PARAGRAPH", $item) || array_key_exists("CONVERSATION", $item)) {
                         ExtraQuestionField::create([
                             'q_id' => $q_data->id,
-                            'paragraph' => $item["PARAGRAPH"],
-                            'conversation' => $item["CONVERSATION"]
+                            'paragraph' => isset($item["PARAGRAPH"])? $item["PARAGRAPH"]: null,
+                            'conversation' => isset($item["CONVERSATION"]) ? $item["CONVERSATION"]: null,
                         ]);
 
                     }
@@ -947,7 +947,7 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'Successfully Topic Updated',
-
+            count($questions )
         ], 200);
     }
 
