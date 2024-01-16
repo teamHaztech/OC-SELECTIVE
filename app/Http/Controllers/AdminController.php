@@ -141,8 +141,8 @@ class AdminController extends Controller
 
             foreach ($topic as $key => $value) {
                 $questions = Question::where('tst_id', $value)->get();
-                // echo (count( $questions))." " ;
-                for ($i = 1; $i < $count && count($questions) >= $i; $i++) {
+
+                for ($i = 1; $i <= $count && count($questions) >= $i; $i++) {
                     $randomIndex = rand(0, count($questions) - $i);
                     //    echo(count($questions) - $i);
                     $temp = $questions[count($questions) - $i];
@@ -154,6 +154,7 @@ class AdminController extends Controller
                 }
 
             }
+
             // dd( $count, count($temp_selectedQuestions));
 
             for ($i = count($temp_selectedQuestions) - 1; $i >= 0 && count($selectedQuestions) < $totalQuestions; $i--) {
@@ -165,7 +166,7 @@ class AdminController extends Controller
                 $temp_selectedQuestions[$randomIndex] = $temp;
                 $selectedQuestions[] = $temp_selectedQuestions[$i];
             }
-
+            // return [count( $selectedQuestions)];
         } else {
             $nv_topic = TestSeriesTopics::whereIn('id', $topic)
                 ->where('nv_topic', 1)->get();
@@ -686,12 +687,12 @@ class AdminController extends Controller
         }
 
         $set_d = TSPCSet::where('id', $request->data['set_id'])
-            ->with(['getTsPC.testSeriesCategories','getTsPC.testSeriesProduct',])
+            ->with(['getTsPC.testSeriesCategories', 'getTsPC.testSeriesProduct',])
             ->first();
         // $questions = Question::whereIn('tst_id', $item['tst_id'])
         //     ->get();
 
-        $selectedQuestions = $this->questionGenerator($item['tst_id'], $set_d->getTsPC->testSeriesCategories->id,$set_d->getTsPC->testSeriesCategories->id);
+        $selectedQuestions = $this->questionGenerator($item['tst_id'], $set_d->getTsPC->testSeriesCategories->id, $set_d->getTsPC->testSeriesProduct->ts_id);
         // return  $selectedQuestions;
 
         // $q_data[] = [
