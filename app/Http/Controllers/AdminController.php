@@ -676,7 +676,9 @@ class AdminController extends Controller
             ->first();
 
         // return $set;
-
+        // return response()->json([
+        //     'Message' => $set,
+        // ], 403);
         if ($set) {
             return response()->json([
                 'Message' => 'Product Already Released (Set)',
@@ -684,12 +686,12 @@ class AdminController extends Controller
         }
 
         $set_d = TSPCSet::where('id', $request->data['set_id'])
-            ->with('getTsPC.testSeriesCategories')
+            ->with(['getTsPC.testSeriesCategories','getTsPC.testSeriesProduct',])
             ->first();
         // $questions = Question::whereIn('tst_id', $item['tst_id'])
         //     ->get();
 
-        $selectedQuestions = $this->questionGenerator($item['tst_id'], $set_d->getTsPC->testSeriesCategories->id);
+        $selectedQuestions = $this->questionGenerator($item['tst_id'], $set_d->getTsPC->testSeriesCategories->id,$set_d->getTsPC->testSeriesCategories->id);
         // return  $selectedQuestions;
 
         // $q_data[] = [
