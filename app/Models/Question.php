@@ -84,19 +84,19 @@ class Question extends Model
             set: fn(string $value) => rtrim($value, ',') ?? null
         );
     }
-    protected function option3(): Attribute
-    {
-        return Attribute::make(
-            set: fn(string $value) => rtrim($value, ',') ?? null
-        );
-    }
+    // protected function option3(): Attribute
+    // {
+    //     return Attribute::make(
+    //         set: fn(string $value) => rtrim($value, ',') ?? null
+    //     );
+    // }
 
-    protected function option4(): Attribute
-    {
-        return Attribute::make(
-            set: fn(string $value) => rtrim($value, ',') ?? null
-        );
-    }
+    // protected function option4(): Attribute
+    // {
+    //     return Attribute::make(
+    //         set: fn(string $value) => rtrim($value, ',') ?? null
+    //     );
+    // }
 
     public function questionImage()
     {
