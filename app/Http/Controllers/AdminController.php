@@ -553,6 +553,14 @@ class AdminController extends Controller
 
         TestSeriesProduct::where('id', $p_id)->update($data);
         $tsp = TestSeriesProduct::where('id', $p_id)->first();
+        $current_date = date('Y-m-d');
+        $product = TestSeriesProduct::where('id', $p_id)
+        ->where('release_date', "<=", $current_date)
+        ->whereHas('getTsProductCategory', function ($query) {
+            $query->whereNot('total_set', null);
+        })
+        ->first();
+        $tsp->release_status = !!$product;
         return response()->json([
             'product_detail' => $tsp,
             'message' => 'Product Updated Successfully',
@@ -662,7 +670,7 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'Successfully TSProductTopic added',
-            // 'categories_data' => $categories
+            'categories_data' => $categories
         ], 200);
     }
     public function updateTSProductTopic(Request $request)
@@ -670,17 +678,13 @@ class AdminController extends Controller
         $item = $request->data;
 
         $current_date = date('Y-m-d');
-        $set = TSPCSet::where('id', $item['tst_id'])
-            ->whereHas('getTsPC.testSeriesProduct', function ($query) use ($current_date) {
-                $query->where('release_date', "<=", $current_date);
-            })
+        $set = TSPCSet::where('id', $item['set_id'])
+            ->with('getTsPC.testSeriesProduct.tsPurchases')
             ->first();
 
-        // return $set;
-        // return response()->json([
-        //     'Message' => $set,
-        // ], 403);
-        if ($set) {
+        $total_purchase = count($set->getTsPC->testSeriesProduct->tsPurchases);
+
+        if ($total_purchase != 0) {
             return response()->json([
                 'Message' => 'Product Already Released (Set)',
             ], 403);
@@ -781,8 +785,8 @@ class AdminController extends Controller
                 if (array_key_exists("PARAGRAPH", $item) || array_key_exists("CONVERSATION", $item)) {
                     ExtraQuestionField::create([
                         'q_id' => $q_data->id,
-                        'paragraph' => isset($item["PARAGRAPH"])? $item["PARAGRAPH"]: null,
-                        'conversation' => isset($item["CONVERSATION"]) ? $item["CONVERSATION"]: null,
+                        'paragraph' => isset($item["PARAGRAPH"]) ? $item["PARAGRAPH"] : null,
+                        'conversation' => isset($item["CONVERSATION"]) ? $item["CONVERSATION"] : null,
                     ]);
 
                 }
@@ -832,7 +836,7 @@ class AdminController extends Controller
         }
         return response()->json([
             'message' => 'Successfully Topic added',
-            count($questions )
+            count($questions)
         ], 200);
     }
     public function getTopicQuestion($tst_id)
@@ -911,8 +915,8 @@ class AdminController extends Controller
                     if (array_key_exists("PARAGRAPH", $item) || array_key_exists("CONVERSATION", $item)) {
                         ExtraQuestionField::create([
                             'q_id' => $q_data->id,
-                            'paragraph' => isset($item["PARAGRAPH"])? $item["PARAGRAPH"]: null,
-                            'conversation' => isset($item["CONVERSATION"]) ? $item["CONVERSATION"]: null,
+                            'paragraph' => isset($item["PARAGRAPH"]) ? $item["PARAGRAPH"] : null,
+                            'conversation' => isset($item["CONVERSATION"]) ? $item["CONVERSATION"] : null,
                         ]);
 
                     }
@@ -947,7 +951,7 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'Successfully Topic Updated',
-            count($questions )
+            count($questions)
         ], 200);
     }
 
@@ -972,7 +976,7 @@ class AdminController extends Controller
                 $query->whereNot('total_set', null);
             })
             ->first();
-        $tst->release_status = !!$product;
+            $tst->release_status = !!$product;
 
         return response()->json([
             'product_detail' => $tst,
@@ -1071,15 +1075,24 @@ class AdminController extends Controller
     public function deleteProduct($p_id)
     {
         $current_date = date('Y-m-d');
+
         $product = TestSeriesProduct::where('id', $p_id)
-            ->where('release_date', "<=", $current_date)
+            ->with('tsPurchases')
             ->first();
 
-        if ($product) {
+        $total_purchase = count($product->tsPurchases);
+
+        if ($total_purchase != 0) {
             return response()->json([
-                'Message' => 'Product Already Released (Product)',
+                'Message' => 'Product Already Released (Set)',
             ], 403);
         }
+
+        // if ($product) {
+        //     return response()->json([
+        //         'Message' => 'Product Already Released (Product)',
+        //     ], 403);
+        // }
         $product = TestSeriesProduct::where('id', $p_id)
             ->first();
         // File::delete($product->p_image);
@@ -1103,12 +1116,12 @@ class AdminController extends Controller
 
         // Check if the set has a release date before the current date
         $set = TSPCSet::where('id', $set_id)
-            ->whereHas('getTsPC.testSeriesProduct', function ($query) use ($current_date) {
-                $query->where('release_date', '<=', $current_date);
-            })
+            ->with('getTsPC.testSeriesProduct.tsPurchases')
             ->first();
 
-        if ($set) {
+        $total_purchase = count($set->getTsPC->testSeriesProduct->tsPurchases);
+
+        if ($total_purchase != 0) {
             return response()->json([
                 'Message' => 'Product Already Released (Set)',
             ], 403);
@@ -1155,14 +1168,12 @@ class AdminController extends Controller
     {
         $current_date = date('Y-m-d');
         $set = TSPCSet::where('id', $set_id)
-            ->whereHas('getTsPC.testSeriesProduct', function ($query) use ($current_date) {
-                $query->where('release_date', "<=", $current_date);
-            })
+            ->with('getTsPC.testSeriesProduct.tsPurchases')
             ->first();
 
-        // return $set;
+        $total_purchase = count($set->getTsPC->testSeriesProduct->tsPurchases);
 
-        if ($set) {
+        if ($total_purchase != 0) {
             return response()->json([
                 'Message' => 'Product Already Released (Set)',
             ], 403);
