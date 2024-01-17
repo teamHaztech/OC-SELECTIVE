@@ -536,7 +536,7 @@ class ProductController extends Controller
         {
             if (count($topicSet) > 0) {
                 $randomIndex = rand(0, count($topicSet) - 1);
-                return Question::where('tst_id', $topicSet[$randomIndex]->id)->first();
+                return Question::where('tst_id', $topicSet[$randomIndex]->id)->with('questionImage')->first();
             }
             return null;
         }
