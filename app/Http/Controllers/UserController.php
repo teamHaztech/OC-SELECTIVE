@@ -552,7 +552,9 @@ class UserController extends Controller
             ->where('user_id', $user_id)
             ->where('status', 1)
             // ->with('tsProduct')
-            ->where('valid_till', ">=", $current_date)
+            ->where(function ($query) use ($current_date) {
+                $query->whereRaw('STR_TO_DATE(valid_till, "%d-%m-%Y") >= STR_TO_DATE(?, "%d-%m-%Y")', [$current_date]);
+            })
             ->with([
                 'tsProduct' => function ($query) {
                     $query->with(

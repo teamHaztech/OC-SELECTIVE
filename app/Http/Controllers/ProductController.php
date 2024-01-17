@@ -144,7 +144,7 @@ class ProductController extends Controller
         foreach ($purchases as $value) {
             $valid_till = new DateTime($value->valid_till);
 
-            if ($date >  $valid_till) {
+            if ($date > $valid_till) {
                 // print_r ($date);
                 // print_r ($valid_till);
                 TestSeriesPurchases::query()
@@ -155,7 +155,7 @@ class ProductController extends Controller
 
             $interval = $date->diff($valid_till);
             // echo $interval->days;
-            if ($interval->days < 15 && $date <=  $valid_till) {
+            if ($interval->days < 15 && $date <= $valid_till) {
                 $value->p_name = $value->tsProduct->p_name;
                 $value->remaining_days = $interval->days;
                 unset($value->tsProduct);
@@ -184,7 +184,9 @@ class ProductController extends Controller
         $purchases = TestSeriesPurchases::query()
             ->where('user_id', Auth()->id())
             ->where('status', 1)
-            ->where('valid_till', ">=", $current_date)
+            ->where(function ($query) use ($current_date) {
+                $query->whereRaw('STR_TO_DATE(valid_till, "%d-%m-%Y") >= STR_TO_DATE(?, "%d-%m-%Y")', [$current_date]);
+            })
             ->whereHas('tsProduct', function ($query) use ($ts_id) {
                 $query->where('ts_id', $ts_id);
             })
@@ -199,8 +201,14 @@ class ProductController extends Controller
             ])
 
             ->get();
+            $date1 = DateTime::createFromFormat('d-m-Y', "16-04-2024");
 
-        // return $purchases;
+        // return [
+            // $purchases,
+            // $current_date,
+            // ($purchases[1]->valid_till>= $current_date),
+            // (  $date1>=  $current_date)
+        // ];
         $new_purchases = [];
         if (count($purchases->toArray()) == 0) {
             return response()->json([
@@ -524,7 +532,8 @@ class ProductController extends Controller
         $selective_topic = TestSeriesTopics::whereIn("tsc_id", [1, 3])->where('ts_id', 2)->get();
         $oc_question = [];
         $selective_question = [];
-        function getRandomQuestion($topicSet) {
+        function getRandomQuestion($topicSet)
+        {
             if (count($topicSet) > 0) {
                 $randomIndex = rand(0, count($topicSet) - 1);
                 return Question::where('tst_id', $topicSet[$randomIndex]->id)->first();
