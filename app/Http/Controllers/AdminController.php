@@ -734,7 +734,8 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'Successfully TSProductTopic added',
-            'set_data' => $tst->categories[0]
+            'set_data' => $tst->categories,
+            // $set_d->getTsPC->testSeriesCategories
         ], 200);
     }
     public function addTSTopic(Request $request)
