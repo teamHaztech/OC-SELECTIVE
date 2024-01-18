@@ -176,6 +176,7 @@ class AdminController extends Controller
                 ;
                 $count = (int) ceil($totalQuestions / count($topic));
                 $temp_c = 1;
+
                 foreach ($topic as $key => $value) {
                     $questions = Question::where('tst_id', $value)->get();
                     $c = (count($topic) - $temp_c) !== 0 ? (count($topic) - $temp_c) : 1;
@@ -232,7 +233,8 @@ class AdminController extends Controller
                     }
                 } else {
 
-                    $count = round(($totalQuestions - 5) / count($v_topic));
+                    $count = ceil(($totalQuestions - 5) / count($v_topic));
+
                     $temp_c = 1;
                     foreach ($topic as $key => $value) {
                         $questions = Question::where('tst_id', $value)->get();
@@ -254,8 +256,8 @@ class AdminController extends Controller
                             $temp_selectedQuestions[] = $questions[count($questions) - $i];
                         }
                     }
-
-                    $count = round(5 / count($nv_topic));
+                //    echo count($temp_selectedQuestions);
+                    $count = ceil(5 / count($nv_topic));
                     foreach ($nv_topic as $key => $value) {
                         $questions = Question::where('tst_id', $value)->get();
                         for ($i = 1; $i <= $count && $i <= count($questions); $i++) {
@@ -272,7 +274,7 @@ class AdminController extends Controller
 
 
 
-                for ($i = count($temp_selectedQuestions) - 1; $i >= 0 && count($selectedQuestions) < 35; $i--) {
+                for ($i = count($temp_selectedQuestions) - 1; $i >= 0 && count($selectedQuestions) < $totalQuestions; $i--) {
                     $randomIndex = rand(0, $i);
                     $temp = $temp_selectedQuestions[$i];
                     $temp_selectedQuestions[$i] = $temp_selectedQuestions[$randomIndex];
@@ -697,7 +699,7 @@ class AdminController extends Controller
         //     ->get();
 
         $selectedQuestions = $this->questionGenerator($item['tst_id'], $set_d->getTsPC->testSeriesCategories->id, $set_d->getTsPC->testSeriesProduct->ts_id);
-        // return  count($selectedQuestions);
+        return  count($selectedQuestions);
 
         // $q_data[] = [
         //     $tspc->testSeriesCategories->tsc_type => $selectedQuestions
