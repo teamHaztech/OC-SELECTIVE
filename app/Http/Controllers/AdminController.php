@@ -124,7 +124,7 @@ class AdminController extends Controller
         if ($cate_id == 3) {
             $totalQuestions = $this->get_Topic_detail($cate_id, $ts_id)["question_number"];
 
-            $count = (int) round($totalQuestions / count($topic));
+            $count = (int) ceil($totalQuestions / count($topic));
             $temp_c = 1;
 
             foreach ($topic as $key => $value) {
@@ -134,11 +134,11 @@ class AdminController extends Controller
                 if (count($questions) < $count) {
                     $c = (count($topic) - $temp_c) !== 0 ? (count($topic) - $temp_c) : 1;
                     // echo   $c. " ";
-                    $count = (int) round($totalQuestions / $c);
+                    $count = (int) ceil($totalQuestions / $c);
                     $temp_c++;
                 }
             }
-
+            // $count = 100;
             foreach ($topic as $key => $value) {
                 $questions = Question::where('tst_id', $value)->get();
 
@@ -155,7 +155,7 @@ class AdminController extends Controller
 
             }
 
-            // dd( $count, count($temp_selectedQuestions));
+            // echo $count;
 
             for ($i = count($temp_selectedQuestions) - 1; $i >= 0 && count($selectedQuestions) < $totalQuestions; $i--) {
 
@@ -174,13 +174,13 @@ class AdminController extends Controller
             if (count($nv_topic) == 0) {
                 $totalQuestions = $this->get_Topic_detail($cate_id, $ts_id)["question_number"];
                 ;
-                $count = (int) round($totalQuestions / count($topic));
+                $count = (int) ceil($totalQuestions / count($topic));
                 $temp_c = 1;
                 foreach ($topic as $key => $value) {
                     $questions = Question::where('tst_id', $value)->get();
                     $c = (count($topic) - $temp_c) !== 0 ? (count($topic) - $temp_c) : 1;
                     if (count($questions) < $count) {
-                        $count = (int) round($totalQuestions / $c);
+                        $count = (int) ceil($totalQuestions / $c);
                         $temp_c++;
                     }
                 }
@@ -697,7 +697,7 @@ class AdminController extends Controller
         //     ->get();
 
         $selectedQuestions = $this->questionGenerator($item['tst_id'], $set_d->getTsPC->testSeriesCategories->id, $set_d->getTsPC->testSeriesProduct->ts_id);
-        // return  $selectedQuestions;
+        // return  count($selectedQuestions);
 
         // $q_data[] = [
         //     $tspc->testSeriesCategories->tsc_type => $selectedQuestions
