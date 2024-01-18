@@ -699,7 +699,7 @@ class AdminController extends Controller
         //     ->get();
 
         $selectedQuestions = $this->questionGenerator($item['tst_id'], $set_d->getTsPC->testSeriesCategories->id, $set_d->getTsPC->testSeriesProduct->ts_id);
-        return  count($selectedQuestions);
+        // return  count($selectedQuestions);
 
         // $q_data[] = [
         //     $tspc->testSeriesCategories->tsc_type => $selectedQuestions
