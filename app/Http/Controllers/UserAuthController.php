@@ -230,15 +230,15 @@ class UserAuthController extends Controller
         }
 
         $otp = rand(1111, 9999);
-        $mailData = [
-            'title'=>'Your OTP',
-            'body'=>$otp
-        ];
-        Mail::to($request->email)->send(new OTPMail($mailData));
+        // $mailData = [
+        //     'title'=>'Your OTP',
+        //     'body'=>$otp
+        // ];
+        // Mail::to($request->email)->send(new OTPMail($mailData));
 
         return response()->json([
             'message' => 'success',
-            // 'email'=>$request->email,
+            'email'=>$request->email,
             'otp' => $otp
         ], 200);
     }
