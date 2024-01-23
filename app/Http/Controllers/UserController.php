@@ -615,7 +615,7 @@ class UserController extends Controller
                 $query->where('ts_id', $ts_id);
             })
             ->with('userPurchases.tsProduct')
-            ->orderBy('start_date','desc')
+            ->orderBy('end_date','desc')
             ->with('getTSSet')
             ->get();
         // return $user_RA;
