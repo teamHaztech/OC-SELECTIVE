@@ -616,6 +616,7 @@ class UserController extends Controller
             })
             ->with('userPurchases.tsProduct')
             ->orderBy('end_date','desc')
+            ->orderBy('id','desc')
             ->with('getTSSet')
             ->get();
         // return $user_RA;
@@ -638,12 +639,12 @@ class UserController extends Controller
             ->with(['getTSSet.getTsPC', 'getUTStatus.questions.qTopic', 'userPurchases.tsProduct'])
             ->first();
 
-
+// return $user_RA;
         $total_questions = $this->get_Topic_detail($user_RA->getTSSet->getTsPC->tsc_id, $user_RA->userPurchases->tsProduct->ts_id)['question_number'];
 
 
         $user_RA->set_name = $user_RA->getTSSet->set_name;
-
+        $user_RA->tsc_id = $user_RA->getTSSet->getTsPC->tsc_id;
         // return $user_RA->getUTStatus;
         // $user_RA = $user_RA->getUTStatus->filter(function ($item) {
         //     // if ($item->test_answer) {

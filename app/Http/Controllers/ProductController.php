@@ -201,13 +201,13 @@ class ProductController extends Controller
             ])
 
             ->get();
-            $date1 = DateTime::createFromFormat('d-m-Y', "16-04-2024");
+        $date1 = DateTime::createFromFormat('d-m-Y', "16-04-2024");
 
         // return [
-            // $purchases,
-            // $current_date,
-            // ($purchases[1]->valid_till>= $current_date),
-            // (  $date1>=  $current_date)
+        // $purchases,
+        // $current_date,
+        // ($purchases[1]->valid_till>= $current_date),
+        // (  $date1>=  $current_date)
         // ];
         $new_purchases = [];
         if (count($purchases->toArray()) == 0) {
@@ -505,19 +505,34 @@ class ProductController extends Controller
             'message' => 'Added Successfully'
         ], 200);
     }
-    public function getLatestProduct()
+    public function getLatestProduct($user_id)
     {
         $current_date = date('Y-m-d');
-        $product = TestSeriesProduct::query()
+        $products = TestSeriesProduct::query()
             ->where('release_date', '<=', $current_date)
             ->orderBy('release_date', 'desc')
             ->whereHas('getTsProductCategory', function ($query) {
                 $query->whereNot('total_set', null);
             })
-            ->first();
-        if ($product) {
+            ->get('id');
+
+        $purchases = TestSeriesPurchases::query()->where('user_id', $user_id)->get(['tsp_id']);
+        $purchases_ids = $purchases->pluck('tsp_id')->toArray();
+
+        $p_id = "";
+        foreach ($products as $product) {
+
+            if (!in_array($product->id, $purchases_ids)) {
+                $p_id = $product->id;
+                break;
+            }
+        }
+
+        // return $p_id;
+
+        if ($p_id) {
             return response()->json([
-                'latest_product_id' => $product->id
+                'latest_product_id' => $p_id
             ], 200);
         }
         return response()->json([
